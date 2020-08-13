@@ -94,8 +94,8 @@ test('expand#3', () => {
   ]);
 });
 test('expand#4', () => {
-  expect(() => [...wildkarte.expand('test/**/{a,b}?//*.txt')]).toThrowError(
-    "Unsupported wildcard: 'test/**/{a,b}?//*.txt'"
+  expect(() => [...wildkarte.expand('test/**/{a,b}?/\/*.txt')]).toThrowError(
+    "Unsupported wildcard: 'test/**/{a,b}?/\/*.txt'"
   );
 });
 test('expand#5', () => {
