@@ -257,7 +257,7 @@ export function* expand(
   yield* (function* traverse(
     item: IItem,
     index: number
-  ): IterableIterator<IItem> {
+  ): Iterable<IItem> {
     if (ignore && ignore(item)) {
       return;
     }
@@ -274,5 +274,5 @@ export function* expand(
       // このディレクトリを基点にして検索
       yield* traverse(child, index + 1);
     }
-  })({path: normalizeSep(start), name: start, stat: fs.statSync(start)}, 0); // ルートだけは名前がないことがあるのでパスそのものを名前とする
+  })({path: normalizeSep(start), name: path.basename(start) || start, stat: fs.statSync(start.replace(/\/$/, ''))}, 0); // ルートだけは名前がないことがあるのでパスそのものを名前とする
 }
