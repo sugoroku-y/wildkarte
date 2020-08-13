@@ -1,13 +1,28 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+/**
+ * ワイルドカードを正規表現に変換する際に、複数階層を対象にするかどうかを指定するためのenum。
+ */
 const enum RegExpFor {
+  /**
+   * ファイル名だけを対象にする場合はこちらを指定する。
+   */
   FILENAME = 1,
+  /**
+   * 複数階層を対象にする場合はこちらを指定する。
+   */
   PATH = 2,
 }
 
+/**
+ * ワイルドカードを正規表現に変換する際に、ファイル名だけを対象にする場合はこちらを指定する。
+ */
 export const FOR_FILENAME = RegExpFor.FILENAME;
 
+/**
+ * ワイルドカードを正規表現に変換する際に、複数階層を対象にする場合はこちらを指定する。
+ */
 export const FOR_PATH = RegExpFor.PATH;
 
 /**
@@ -80,17 +95,31 @@ export function toRegExp(
  * ファイルやディレクトリの情報を扱うインターフェイス
  */
 export interface IItem {
+  /** ファイル/ディレクトリのフルパス */
   path: string;
+  /** ファイル/ディレクトリの名前 */
   name: string;
+  /** ファイル/ディレクトリのfs.statSyncの返値。 */
   stat: fs.Stats;
 }
 
+/**
+ * `expand`で無視するファイル/ディレクトリを判定する関数の型。
+ * @param item {IItem} 無視するかどうかを決めるファイル/ディレクトリ。
+ * @return {boolean} 無視する場合にはtrueを返す。
+ */
 type IgnoreCallback = (item: IItem) => boolean;
 
+/**
+ * OSでの表記になっているパスを`/`区切りに変換する。
+ * @param fpath {string} OSでの表記のパス
+ * @return {string} `/`区切りのパス
+ */
 function normalizeSep(fpath: string): string {
   return path.sep === '/' ? fpath : fpath.split(path.sep).join('/');
 }
 
+/** IItemに変換する。 */
 function makeItem(
   dirpath: string,
   name: string,
@@ -116,7 +145,7 @@ function makeItem(
  * @param basedir {string} 検索を開始するディレクトリへのパス。
  *
  * 省略時にはカレントディレクトリ。
- * @param ignore {(item: IItem) => any} そのファイル、フォルダを無視するかどうかを決定する関数を指定する。
+ * @param ignore {(item: IItem) => boolean} そのファイル、フォルダを無視するかどうかを決定する関数を指定する。
  *
  * 無視されたファイル・フォルダは`pattern`にマッチしてもイテレータには返されない。
  */
@@ -134,7 +163,7 @@ export function expand(
  * - `*`はファイル/フォルダの名前に使用される全ての0個以上の文字
  *
  * にマッチする。
- * @param ignore {(item: IItem) => any} そのファイル、フォルダを無視するかどうかを決定する関数を指定する。
+ * @param ignore {(item: IItem) => boolean} そのファイル、フォルダを無視するかどうかを決定する関数を指定する。
  *
  * 無視されたファイル・フォルダは`pattern`にマッチしてもイテレータには返されない。
  */
@@ -155,7 +184,7 @@ export function expand(
  * @param options.basedir {string} 検索を開始するディレクトリへのパス。
  *
  * 省略時にはカレントディレクトリ。
- * @param options.ignore {Function} そのファイル、フォルダを無視するかどうかを決定する関数を指定する。
+ * @param options.ignore {(item: IItem) => boolean} そのファイル、フォルダを無視するかどうかを決定する関数を指定する。
  *
  * 無視されたファイル・フォルダは`pattern`にマッチしてもイテレータには返されない。
  */
