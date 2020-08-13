@@ -13,6 +13,9 @@
     "email": "yebisuya@gmail.com",
     "url": "https://qiita.com/sugoroku_y"
   },
+  "repository": {
+    "url": "https://github.com/sugoroku-y/wildkarte.git"
+  },
   "jest": {
     "testMatch": [
       "**/src/wildkarte.test.ts"
