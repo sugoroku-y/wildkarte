@@ -4,6 +4,9 @@
 
 wildcardだとすでに別のモジュールが存在するようでしたので、cardをドイツ語に変えてみました。ドイツ語にした理由は「何となく格好いいから」以外にはありません。
 
+[![NPM version](https://img.shields.io/npm/v/wildkarte.svg?style=flat)](https://www.npmjs.com/package/wildkarte)
+[![NPM monthly download](https://img.shields.io/npm/dm/wildkarte.svg?style=flat)](https://www.npmjs.com/package/wildkarte)
+[![NPM total download](https://img.shields.io/npm/dt/wildkarte.svg?style=flat)](https://www.npmjs.com/package/wildkarte)
 [![Build Status](https://travis-ci.org/sugoroku-y/wildkarte.svg?branch=master)](https://travis-ci.org/sugoroku-y/wildkarte)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
