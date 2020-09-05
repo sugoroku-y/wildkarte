@@ -143,14 +143,14 @@ test('expand#11', async () => {
 });
 
 test('wildkarte.toRegExp#1', () => {
-  expect(wildkarte.toRegExp('*.ts?').source).toBe(/^[^/]*\.ts[^/]$/i);
+  expect(wildkarte.toRegExp('*.ts?').source).toBe(/^[^/]*\.ts[^/]$/.source);
 });
 test('wildkarte.toRegExp#2', () => {
-  expect(wildkarte.toRegExp('*.{js,ts}').source).toBe(/^[^/]*\.(?:js|ts)$/i);
+  expect(wildkarte.toRegExp('*.{js,ts}').source).toBe(/^[^/]*\.(?:js|ts)$/.source);
 });
 test('wildkarte.toRegExp#3', () => {
   expect(wildkarte.toRegExp('<{,}>*.{js,ts}').source).toBe(
-    /^\{,\}[^/]*\.(?:js|ts)$/i
+    /^\{,\}[^/]*\.(?:js|ts)$/.source
   );
 });
 test('wildkarte.toRegExp#4', () => {
@@ -170,7 +170,7 @@ test('wildkarte.toRegExp#8', () => {
   );
 });
 test('wildkarte.toRegExp#9', () => {
-  expect(wildkarte.toRegExp('*.js,ts').source).toBe(/^[^/]*\.js,ts$/i);
+  expect(wildkarte.toRegExp('*.js,ts').source).toBe(/^[^/]*\.js,ts$/.source);
 });
 test('wildkarte.toRegExp#10', () => {
   expect(wildkarte.toRegExp('*.js,ts', {ignoreCase: false})).toEqual(
