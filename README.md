@@ -15,41 +15,21 @@ wildcardだとすでに別のモジュールが存在するようでしたので
 ```ts
 import * as wildkarte from 'wildkarte';
 
-for (const arg of process.argv.slice(2)) {
-  for (const {path} of wildkarte.expand(arg)) {
-    console.log(path)
-  }
+const traverser = wildkarte.expand('**\/*.js');
+for await (const path of traverser(cwd)) {
+  console.log(path);
 }
 
-const re = wildkarte.toRegExp('**/*.ts', wildkarte.FOR_PATH);
+const re = wildkarte.toRegExp('*.ts');
 
 ```
-
-### `wildkarte.IItem`
-
-ファイル/ディレクトリの情報を持つinterfaceです。
-
-```ts
-interface IItem {
-  path: string;
-  name: string;
-  stat: fs.Stats;
-}
-```
-
-- `path: string` ファイル/ディレクトリのフルパス。  
-  ただし、パスのセパレーターはOSにかかわらず、`/`となります。
-- `name: string` ファイル/ディレクトリの名前。
-- `stat: fs.Stats` ファイル/ディレクトリのfs.statの返値。
 
 ### `wildkarte.expand`
 
-指定されたパターンにマッチするすべてのファイル/ディレクトリの`IItem`を順次返すIterableを返します。
+引数`start`に指定されたディレクトリから、パターンにマッチするすべてのファイル/ディレクトリを、startからの相対パスで返す、非同期ジェネレーターを返します。
 
 ```ts
-export function expand(pattern: string, basedir?: string, ignore?: IgnoreCallback): Iterable<IItem>;
-export function expand(pattern: string, ignore: IgnoreCallback): Iterable<IItem>;
-export function expand(pattern: string, options: {basedir?: string; ignore?: IgnoreCallback}): Iterable<IItem>;
+export function expand(pattern: string, options?: {ignoreCase?: boolean, ignoreFiles?: IgnoreCallback}): (start: string) => AysncGenerator<string, void>;
 ```
 
 #### 引数
@@ -66,21 +46,31 @@ export function expand(pattern: string, options: {basedir?: string; ignore?: Ign
   - `/`を含めることはできません。
 - `<～>`は`<`と`>`で囲まれた間の文字をワイルドカードとしてではなく、その文字として扱います。ただし、`/`を含めることはできません。
 
-`options: object` 検索に関するオプション。`basedir`と`ignore`が指定できます。
+`options: object` 検索に関するオプション。`ignoreCase`と`ignoreFiles`が指定できます。
 
-`basedir: string` 検索を開始するディレクトリへのパス。  
+- `ignoreCase: boolean` 検索時のファイル名で大文字小文字を区別する場合には真を指定します。  
 
-省略時にはカレントディレクトリを指定したものとします。
+ただし、`**`やワイルドカードが指定されている場所でのみ有効で、ファイル名やディレクトリ名が完全に指定されている箇所についてはファイルシステムの扱いに依存します。
 
-`ignore: IgnoreCallback` そのファイル、ディレクトリを無視するかどうかを決定する関数。
+省略時には`process.platform`が`win32`か`cygwin`であれば真を、その他の場合には偽を指定したものとします。
+
+- `ignoreFiles: ({path: string, stat: fs.Stat}) => boolean` そのファイル、ディレクトリを無視するかどうかを決定する関数。
 
 この関数がtrueを返したとき、そのファイル、もしくはそのディレクトリ以下のすべてのファイル、ディレクトリは`pattern`にマッチしてもスキップされます。
 
 省略時はすべてのファイル・ディレクトリをスキップしません。
 
+ただし、この関数で無視するかどうかを指定できるのは`**`やワイルドカードが指定されている場所でのみ有効で、ファイル名やディレクトリ名が完全に指定されている箇所については無視されません。
+
+- `fileOnly: boolean` ファイルだけにマッチさせる場合には真を指定します。
+
+たとえば、`**/*.js`というパターンには`node_modules/vue.js/`というディレクトリもマッチしてしまいますが、ファイルにだけマッチさせたい場合に真を指定します。
+
+逆にディレクトリだけにマッチさせたい場合には`**/*.js/`のように末尾に`/`を追加してください。
+
 #### 返値
 
-`IItem`を順次返すItearbleを返します。
+引数`start`に指定されたディレクトリから、パターンにマッチするすべてのファイル/ディレクトリを、startからの相対パスで返す、非同期ジェネレーターを返します。
 
 ### `wildkarte.toRegExp`
 
@@ -90,10 +80,23 @@ export function expand(pattern: string, options: {basedir?: string; ignore?: Ign
 
 `pattern: string` 検索するファイル/ディレクトリ名のパターン。
 
- `regExpFor RegExpFor` 複数階層に渡るワイルドカードをサポートする場合はwildcard.FOR_PATHを指定します。
+- `*` 0文字以上の`/`以外のすべての文字にマッチします。
+- `?` 1文字の`/`以外のすべての文字にマッチします。
+- `{パターン1,パターン2}` 複数のパターンにマッチします。  
+  ネストも可です。  
+  `/`は含められません。
+- `<文字列>` ワイルドカードでの特殊文字を含んだファイル名にマッチさせるとき使用します。
+  `<{*}?,>`のように複数で指定可能ですが、`>`だけは`<>>`のように単独で指定します。
+  `/`は含められません。
+
+`options: object` ワイルドカードを正規表現に変換するときのオプション。それぞれ省略可です。
+
+- `start` ワイルドカードを開始したインデックス。
+  変換時にエラーが発生したときのインデックス計算に使用します。
+  省略時には0が指定されたものとします。
+- `ignoreCase` ファイル名の大文字小文字を無視する場合に真を指定します。
+  省略時にはprocess.platformが'win32'か'cygwin'であれば真、それ以外では偽が指定されたものとします。
 
 #### 返値
 
 指定したワイルドカード文字列を正規表現に変換したものを返します。
-
-
