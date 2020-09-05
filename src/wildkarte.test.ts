@@ -1,55 +1,55 @@
 import {resolve, sep} from 'path';
 import * as wildkarte from './index';
 
-test('toRegExp', () => {
+test('toRegExp#1', () => {
   expect(() => wildkarte.toRegExp('')).toThrowError("Unsupported wildcard: ''");
 });
-test('toRegExp', () => {
-  expect(wildkarte.toRegExp('*')).toEqual(/^[^/]*$/i);
+test('toRegExp#2', () => {
+  expect(wildkarte.toRegExp('*').source).toBe(/^[^/]*$/.source);
 });
-test('toRegExp', () => {
-  expect(wildkarte.toRegExp('?')).toEqual(/^[^/]$/i);
+test('toRegExp#3', () => {
+  expect(wildkarte.toRegExp('?').source).toBe(/^[^/]$/.source);
 });
-test('toRegExp', () => {
-  expect(wildkarte.toRegExp('{abc,def}')).toEqual(/^(?:abc|def)$/i);
+test('toRegExp#4', () => {
+  expect(wildkarte.toRegExp('{abc,def}').source).toBe(/^(?:abc|def)$/.source);
 });
-test('toRegExp', () => {
-  expect(wildkarte.toRegExp('{abc,def{123,456}}')).toEqual(
-    /^(?:abc|def(?:123|456))$/i
+test('toRegExp#5', () => {
+  expect(wildkarte.toRegExp('{abc,def{123,456}}').source).toBe(
+    /^(?:abc|def(?:123|456))$/.source
   );
 });
-test('toRegExp escaped', () => {
-  expect(wildkarte.toRegExp('<^$()[]{}+.,>')).toEqual(
-    /^\^\$\(\)\[\]\{\}\+\.,$/i
+test('toRegExp escaped#1', () => {
+  expect(wildkarte.toRegExp('<^$()[]{}+.,>').source).toBe(
+    /^\^\$\(\)\[\]\{\}\+\.,$/.source
   );
 });
-test('toRegExp escaped', () => {
-  expect(wildkarte.toRegExp('^$()[]+.,')).toEqual(/^\^\$\(\)\[\]\+\.,$/i);
+test('toRegExp escaped#2', () => {
+  expect(wildkarte.toRegExp('^$()[]+.,').source).toBe(/^\^\$\(\)\[\]\+\.,$/.source);
 });
 
-test('toRegExp escaped', () => {
-  expect(wildkarte.toRegExp('<<>')).toEqual(/^<$/i);
+test('toRegExp escaped#3', () => {
+  expect(wildkarte.toRegExp('<<>').source).toBe(/^<$/.source);
 });
-test('toRegExp escaped', () => {
-  expect(wildkarte.toRegExp('<>>')).toEqual(/^>$/i);
+test('toRegExp escaped#4', () => {
+  expect(wildkarte.toRegExp('<>>').source).toBe(/^>$/.source);
 });
-test('toRegExp escaped', () => {
-  expect(wildkarte.toRegExp('>')).toEqual(/^>$/i);
+test('toRegExp escaped#5', () => {
+  expect(wildkarte.toRegExp('>').source).toBe(/^>$/.source);
 });
-test('toRegExp error', () => {
+test('toRegExp error#1', () => {
   expect(() => wildkarte.toRegExp('/')).toThrowError(
     "Unsupported wildcard: '/'"
   );
 });
-test('toRegExp error', () => {
+test('toRegExp error#2', () => {
   expect(() => wildkarte.toRegExp('**')).toThrowError(
     "Unsupported wildcard: '**'"
   );
 });
-test('toRegExp error', () => {
+test('toRegExp error#3', () => {
   expect(() => wildkarte.toRegExp('}')).toThrowError('Unmatched `}`');
 });
-test('toRegExp error', () => {
+test('toRegExp error#4', () => {
   expect(() => wildkarte.toRegExp('{')).toThrowError('Unmatched `{`');
 });
 
@@ -143,13 +143,13 @@ test('expand#11', async () => {
 });
 
 test('wildkarte.toRegExp#1', () => {
-  expect(wildkarte.toRegExp('*.ts?')).toEqual(/^[^/]*\.ts[^/]$/i);
+  expect(wildkarte.toRegExp('*.ts?').source).toBe(/^[^/]*\.ts[^/]$/i);
 });
 test('wildkarte.toRegExp#2', () => {
-  expect(wildkarte.toRegExp('*.{js,ts}')).toEqual(/^[^/]*\.(?:js|ts)$/i);
+  expect(wildkarte.toRegExp('*.{js,ts}').source).toBe(/^[^/]*\.(?:js|ts)$/i);
 });
 test('wildkarte.toRegExp#3', () => {
-  expect(wildkarte.toRegExp('<{,}>*.{js,ts}')).toEqual(
+  expect(wildkarte.toRegExp('<{,}>*.{js,ts}').source).toBe(
     /^\{,\}[^/]*\.(?:js|ts)$/i
   );
 });
@@ -170,12 +170,22 @@ test('wildkarte.toRegExp#8', () => {
   );
 });
 test('wildkarte.toRegExp#9', () => {
-  expect(wildkarte.toRegExp('*.js,ts')).toEqual(/^[^/]*\.js,ts$/i);
+  expect(wildkarte.toRegExp('*.js,ts').source).toBe(/^[^/]*\.js,ts$/i);
 });
 test('wildkarte.toRegExp#10', () => {
   expect(wildkarte.toRegExp('*.js,ts', {ignoreCase: false})).toEqual(
     /^[^/]*\.js,ts$/
   );
+});
+test('wildkarte.toRegExp#11', () => {
+  expect(wildkarte.toRegExp('*.js,ts', {ignoreCase: true})).toEqual(
+    /^[^/]*\.js,ts$/i
+  );
+});
+
+test('wildkarte.toRegExp#12', () => {
+  const isWin32 = ['win32', 'cygwin'].includes(process.platform)
+  expect(wildkarte.toRegExp('*.js,ts').flags).toBe(isWin32 ? 'i' : '');
 });
 
 test('wildkarte.expand#1', () => {
