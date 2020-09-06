@@ -4,6 +4,7 @@
   "description": "This is a library to expand wildcards.",
   "main": "lib/index.js",
   "scripts": {
+    "prepublish": "npm run build",
     "build": "tsc --build src/tsconfig.json",
     "test": "jest --coverage"
   },
